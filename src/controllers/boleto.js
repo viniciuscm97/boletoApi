@@ -20,31 +20,33 @@ class Boleto {
      */
     async consultLines(req, res){
         const { id } = req.params;
+        // remove spaces
+        const barCode = id.replace(/\s/g,'');
         let data = {};
         let response = '';
         let status = '';
 
-        const findBadRequest = this.validateBoleto(id);
+        const findBadRequest = this.validateBoleto(barCode);
         if (findBadRequest) {
             status = STATUS_CODE_BAD_REQUEST;
             response = findBadRequest || 'Solicitação inválida, verifique os dados enviados';
         } else {
-            if (this.bankTitle.isValid(id)) {
+            if (this.bankTitle.isValid(barCode)) {
                 status = STATUS_CODE_OK;
-                data = this.bankTitle.extractData(id);
-            } else if (this.dealershipTitle.isValid(id)) {
+                data = this.bankTitle.extractData(barCode);
+            } else if (this.dealershipTitle.isValid(barCode)) {
                 status = STATUS_CODE_OK;
-                data = this.dealershipTitle.extractData(id);
+                data = this.dealershipTitle.extractData(barCode);
             } else {
                 status = STATUS_CODE_BAD_REQUEST;
             }
         }
-        data.barCode = id;
+        data.barCode = barCode;
 
         if (status === STATUS_CODE_OK) {
             res.status(status).json(data);
         } else {
-            res.send(status, response);
+            res.status(status).send(response);
         }
     }    
 

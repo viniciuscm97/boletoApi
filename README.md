@@ -27,3 +27,9 @@ Projeto que verifica o código de barras/linha digítavel de boletos do tipo tí
   ```bash
     /boleto
     ```
+
+- To test
+ 
+  ```bash
+    /boleto/${ SEND BAR CODE HERE}
+    ```
