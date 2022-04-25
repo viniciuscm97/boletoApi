@@ -1,0 +1,18 @@
+    {
+    "check-coverage": true,
+    "all": true,
+    "output": "reports",
+    "reporter": [
+        "text-summary",
+        "lcov",
+        "html"
+    ],
+    "exclude": [
+        "src/test/**/",
+        "coverage/**/",
+        "src/**.js"
+    ],
+    "include": [
+        "src/**/*.js"
+    ]
+}
