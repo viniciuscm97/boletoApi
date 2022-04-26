@@ -1,6 +1,7 @@
 const chai = require('chai');
 const chaiHttp = require('chai-http');
 const { expect } = require('chai');
+const mocks = require('node-mocks-http');
 
 chai.should();
 chai.use(chaiHttp);
@@ -8,6 +9,8 @@ chai.use(chaiHttp);
 const Boleto = require('../src/controllers/boleto');
 const BankTitle = require('../src/class/bankTitle');
 const DealershipTitle = require('../src/class/dealershipTitle');
+// const req = require('express/lib/request');
+// const res = require('express/lib/response');
 const boleto = new Boleto(BankTitle, DealershipTitle);
 
 const validResponde = {
@@ -19,9 +22,9 @@ const barCodeWithChar = '8321312371293173891379278ab';
 const barCodeWithWrongLenght = '00190500954014123456786809350314337370000000100123123';
 
 const validBankTitleCode = '00190500954014481606906809350314337370000000100';
-const invalidBankTitleCode = '00190500954014123456786809350314337370000000100';
+const invalidBankTitleCode = '00190500954014123456786809350314337370000099100';
 
-const validDealerShipTitleCode = '82210000215048200974123220154098290108605940';
+const validDealerShipTitleCode = '836500000002825300863255834233587015100110136924';
 const invalidDealerShipTitleCode = '82210000215048200974123999999098290108605940';
 
 describe('boleto', () => {
@@ -48,8 +51,8 @@ describe('boleto', () => {
                         .end((err, res) => {
                             res.should.have.status(200);
                             res.body.should.be.a('object');
-                            res.body.should.have.property('amount').eql('XX.XX');
-                            res.body.should.have.property('expirationDate').eql('XXXX-XX-XX');
+                            res.body.should.have.property('amount').eql('82.53');
+                            res.body.should.have.property('expirationDate').eql('Not Found');
                             res.body.should.have.property('barCode').eql(validDealerShipTitleCode);
                             return done();
                         })
@@ -82,15 +85,62 @@ describe('boleto', () => {
                 });
             });
         });
+
+        describe('Function', () => {
+            let req = {};
+            let res = {};
+            beforeEach(() => {
+                req = mocks.createRequest();
+                res = mocks.createResponse();
+            });
+            describe('Happy path', () => {
+                it('User send a valid bank title barcode', async () => {
+                    req.params.id = validBankTitleCode;
+
+                    await boleto.consultLines(req,res);
+                    expect(res.statusCode).to.be.eq(200);
+                });
+
+                it('User send a valid dealership barcode', async () => {
+                    req.params.id = validDealerShipTitleCode;
+
+                    await boleto.consultLines(req,res);
+                    expect(res.statusCode).to.be.eq(200);
+                });
+            });
+
+            describe('sad path', () => {
+
+                it('User send a barcode with a char', async () => {
+                    req.params.id = barCodeWithChar;
+
+                    await boleto.consultLines(req,res);
+                    expect(res.statusCode).to.be.eq(400);
+                });
+                it('User send a barcode with a wrong lenght', async () => {
+                    req.params.id = barCodeWithWrongLenght;
+
+                    await boleto.consultLines(req,res);
+                    expect(res.statusCode).to.be.eq(400);
+                });
+
+                it('User send a banktitle barcode but he is invalid', async () => {
+                    req.params.id = invalidBankTitleCode;
+
+                    await boleto.consultLines(req,res);
+                    expect(res.statusCode).to.be.eq(400);
+                });
+            });
+        });
     });
 
     describe('validateBoleto', () => {
-        const barCode44Lenght = '00190500954014481606906809350314337370000000';
-        const barCode48Lenght = '00190500954014481606906809350314337370000000100';
+        const barCode47Lenght = '00190500954014481606906809350314337370000000100';
+        const barCode48Lenght = '001905009540144816069068093503143373700000001000';
 
         describe('Happy path', () => {
-            it('User send a valid barcode with 44 lenght', () => {
-                const result = boleto.validateBoleto(barCode44Lenght);
+            it('User send a valid barcode with 47 lenght', () => {
+                const result = boleto.validateBoleto(barCode47Lenght);
                 expect(result).to.be.undefined;
             });
             it('User send a valid barcode with 48 lenght', () => {

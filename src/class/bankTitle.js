@@ -102,7 +102,7 @@ class BankTitle {
     getAmount(amountCode) {
         const cents = amountCode.substring(8);
         const integers = parseInt(amountCode.slice(0,-2));
-        return `${integers}.${cents}` || 'XX.XX';
+        return `${integers}.${cents}`;
     }    
 
     /**
@@ -116,7 +116,7 @@ class BankTitle {
         const expirationDate = new Date(baseData.getTime());
         expirationDate.setDate(baseData.getDate() + parseInt(dueDateFactor));
         const formatedDate = expirationDate.toLocaleDateString('en-CA')
-        return formatedDate || 'XXXX-XX-XX';
+        return formatedDate;
     }
 };
 

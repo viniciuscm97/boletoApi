@@ -29,7 +29,7 @@ class Boleto {
         const findBadRequest = this.validateBoleto(barCode);
         if (findBadRequest) {
             status = STATUS_CODE_BAD_REQUEST;
-            response = findBadRequest || 'Solicitação inválida, verifique os dados enviados';
+            response = findBadRequest;
         } else {
             if (this.bankTitle.isValid(barCode)) {
                 status = STATUS_CODE_OK;
@@ -39,6 +39,8 @@ class Boleto {
                 data = this.dealershipTitle.extractData(barCode);
             } else {
                 status = STATUS_CODE_BAD_REQUEST;
+                response = 'Não foi possível validar os dados digitados!';
+
             }
         }
         data.barCode = barCode;
@@ -61,7 +63,7 @@ class Boleto {
         if ((/\D/).test(barCode)) {
             return 'Caracteres não são permitidos no campo de código de barras!';
         }
-        if ((barCode.length != 47) && (barCode.length != 44)) {
+        if ((barCode.length != 47) && (barCode.length != 48)) {
             return 'Código de barras com tamanho inválido!';
         }
     }
